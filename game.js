@@ -1214,8 +1214,8 @@ function Game() {
         React.createElement('canvas', { ref: canvasRef, width: 1200, height: 600 }),
 
         gameState === 'playing' ? React.createElement(React.Fragment, null,
+            React.createElement('button', { id: 'btn-menu', className: 'game-btn', type: 'button', title: 'Menu', 'aria-label': 'Menu', onClick: () => setGameState('menu') }, '⌂'),
             React.createElement('button', { id: 'btn-restart', className: 'game-btn', type: 'button', title: 'Restart run', 'aria-label': 'Restart run', onClick: resetGame }, '↻'),
-            React.createElement('button', { id: 'btn-fullscreen', className: 'game-btn', type: 'button', title: 'Fullscreen', 'aria-label': 'Fullscreen', onClick: toggleFullscreen }, '⛶'),
             React.createElement('button', { id: 'btn-pause', className: 'game-btn', type: 'button', title: 'Pause', 'aria-label': 'Pause', onClick: () => setGameState('paused') }, '❚❚')
         ) : null,
 
