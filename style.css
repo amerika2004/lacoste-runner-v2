@@ -256,7 +256,7 @@ canvas { display: block; width: 100%; height: 100%; object-fit: contain; touch-a
 
 /* === ИНВЕНТАРЬ (Внизу по центру) === */
 .pack2-inventory {
-    position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 10px; z-index: 10; pointer-events: auto;
 }
 .inv-btn {
@@ -1159,199 +1159,81 @@ canvas { display: block; width: 100%; height: 100%; object-fit: contain; touch-a
     .pack2-inventory .inv-count { width: 13px; height: 13px; font-size: 9px; top: -3px; right: -3px; }
 }
 
-/* ==========================================
-   HUD FIX — INVENTORY + COMPACT NOTIFICATIONS
-   ========================================== */
+/* =========================================================
+   MOBILE ENTRY GATE + RESPONSIVE HUD / FULLSCREEN REVISION
+   ========================================================= */
+.mobile-entry-gate {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    box-sizing: border-box; overflow: auto;
+    background: radial-gradient(ellipse at 50% 25%, #18265c 0%, #090b1a 60%, #03040a 100%);
+    color: #fff; font-family: 'Montserrat', sans-serif;
+}
+.mobile-entry-card {
+    width: min(100%, 520px); max-height: 100%; overflow: auto;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: clamp(20px, 5vw, 36px); box-sizing: border-box;
+    border: 1px solid rgba(120, 170, 255, .35); border-radius: 22px;
+    background: rgba(8, 14, 34, .88); box-shadow: 0 18px 70px rgba(0,0,0,.55), inset 0 0 30px rgba(70,110,255,.08);
+}
+.mobile-entry-logo { color: #00ffcc; font-size: clamp(12px, 2.5vw, 16px); font-weight: 900; letter-spacing: .22em; }
+.mobile-entry-icon { margin: 14px 0 4px; font-size: clamp(40px, 10vw, 72px); line-height: 1; }
+.mobile-entry-card h1 { margin: 10px 0; font-size: clamp(22px, 5vw, 34px); font-weight: 900; }
+.mobile-entry-card p { margin: 8px 0; color: #cbd5e1; font-size: clamp(12px, 2.8vw, 16px); line-height: 1.5; }
+.mobile-entry-steps { width: 100%; display: grid; gap: 8px; margin: 14px 0 18px; }
+.mobile-entry-step { padding: 10px 12px; border-radius: 10px; text-align: left; color: #cbd5e1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); font-size: clamp(11px, 2.6vw, 14px); }
+.mobile-entry-step:first-letter { font-weight: 900; color: #fff; }
+.mobile-entry-step.done { border-color: rgba(0,255,204,.45); color: #00ffcc; background: rgba(0,255,204,.08); }
+.mobile-entry-button { width: 100%; min-height: 48px; padding: 12px 16px; border: 0; border-radius: 12px; color: #07111a; background: linear-gradient(135deg, #00ffcc, #00c5ff); font: 900 clamp(11px, 2.8vw, 15px) 'Montserrat', sans-serif; cursor: pointer; box-shadow: 0 8px 25px rgba(0,220,210,.2); }
+.mobile-entry-notice { color: #ffd166 !important; }
+.mobile-entry-hint { font-size: 10px !important; opacity: .72; }
 
-/* Юзабельные предметы — правый нижний угол */
-.pack2-inventory {
-    position: absolute !important;
+/* Fullscreen game fills the viewport; the game scene remains 2:1 and scales uniformly. */
+#game-container:fullscreen { width: 100vw !important; height: 100vh !important; height: 100dvh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; }
+#game-container:fullscreen canvas { width: 100%; height: 100%; object-fit: contain; }
+:fullscreen #root { width: 100vw; height: 100vh; height: 100dvh; }
 
-    top: auto !important;
-    left: auto !important;
-    right: 8px !important;
-    bottom: 8px !important;
-
-    transform: none !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
-
-    align-items: center !important;
-    justify-content: flex-end !important;
-
-    width: max-content !important;
-    max-width: none !important;
-
-    gap: 4px !important;
-    padding: 4px !important;
-
-    background: rgba(5, 8, 20, 0.35);
-    border-radius: 10px;
-
-    pointer-events: auto;
-    z-index: 15;
+/* Landscape phones: carefully scale menu, HUD and touch targets to the available height. */
+@media (max-width: 900px) and (orientation: landscape) {
+    body, html, #root { width: 100%; height: 100%; height: 100dvh; }
+    #game-container { width: min(100vw, calc(100dvh * 2)) !important; height: min(100dvh, calc(100vw / 2)) !important; border-radius: 0 !important; }
+    .menu-overlay { padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); }
+    .menu-box { max-width: 100%; padding: 5px; }
+    .title { font-size: clamp(22px, 6.5vmin, 42px); letter-spacing: -1px; }
+    .subtitle { font-size: clamp(9px, 2.2vmin, 13px); letter-spacing: 2px; margin-bottom: 8px; }
+    .settings { gap: 5px; margin-bottom: 6px; }
+    .btn { padding: 6px 10px; font-size: clamp(10px, 2.1vmin, 13px); }
+    .hud-container { top: max(5px, env(safe-area-inset-top)); right: max(5px, env(safe-area-inset-right)); max-width: 36%; gap: 2px; }
+    .hud-top-row { padding: 3px 5px; gap: 2px 5px; font-size: clamp(8px, 1.8vmin, 11px); }
+    .hud-score { font-size: clamp(18px, 4.2vmin, 30px); }
+    .hud-highscore { font-size: clamp(8px, 1.6vmin, 10px); }
+    .hud-speed { font-size: clamp(9px, 1.8vmin, 12px); }
+    .hud-health { font-size: clamp(12px, 2.6vmin, 17px); }
+    .hud-food { font-size: clamp(9px, 1.8vmin, 12px); padding: 2px 4px; }
+    #btn-menu, #btn-restart, #btn-pause, #btn-fullscreen { top: max(5px, env(safe-area-inset-top)); width: clamp(27px, 5.5vmin, 36px); height: clamp(27px, 5.5vmin, 36px); font-size: clamp(11px, 2.2vmin, 15px); }
+    #btn-menu { left: max(5px, env(safe-area-inset-left)); }
+    #btn-restart { left: calc(max(5px, env(safe-area-inset-left)) + clamp(31px, 6.2vmin, 40px)); font-size: clamp(15px, 3vmin, 20px); }
+    #btn-pause { left: calc(max(5px, env(safe-area-inset-left)) + clamp(62px, 12.4vmin, 80px)); }
+    #btn-fullscreen { left: calc(max(5px, env(safe-area-inset-left)) + clamp(93px, 18.6vmin, 120px)); }
+    .combo-indicator { top: clamp(39px, 8vmin, 52px); left: max(5px, env(safe-area-inset-left)); max-width: 20%; font-size: clamp(9px, 1.9vmin, 13px); }
+    .pack2-inventory { top: auto !important; right: max(5px, env(safe-area-inset-right)) !important; bottom: max(5px, env(safe-area-inset-bottom)) !important; left: auto !important; padding: 3px !important; gap: 3px !important; }
+    .pack2-inventory .inv-btn { width: clamp(27px, 5.6vmin, 36px) !important; height: clamp(27px, 5.6vmin, 36px) !important; }
+    .pack2-inventory .inv-icon { font-size: clamp(15px, 3.2vmin, 21px) !important; }
+    .pack3-toast-container { top: max(5px, env(safe-area-inset-top)); max-width: min(45%, 300px); max-height: 18%; gap: 2px; }
+    .pack3-toast { padding: 3px 6px; font-size: clamp(8px, 1.7vmin, 11px); }
+    .pack4-minor-toast-rail { top: 24%; right: max(5px, env(safe-area-inset-right)); width: min(22%, 160px); }
 }
 
-/* Кнопки предметов */
-.pack2-inventory .inv-btn {
-    position: relative;
 
-    width: 38px !important;
-    height: 38px !important;
-
-    flex: 0 0 auto;
-
-    border-radius: 8px;
+/* Portrait phones remain behind the entry gate; avoid accidental menu exposure. */
+@media (max-width: 900px) and (orientation: portrait) {
+    .mobile-entry-card { width: min(100%, 440px); }
 }
 
-/* Иконки предметов */
-.pack2-inventory .inv-icon {
-    font-size: 22px;
+/* Desktop fullscreen control position */
+@media (min-width: 901px) {
+    #btn-fullscreen { top: 12px; left: 150px; width: 38px; height: 38px; font-size: 17px; }
 }
-
-/* Количество предметов */
-.pack2-inventory .inv-count {
-    position: absolute;
-
-    top: -3px;
-    right: -3px;
-
-    width: 16px;
-    height: 16px;
-
-    font-size: 10px;
-}
-
-/* ==========================================
-   УВЕДОМЛЕНИЯ — РАЗМЕР ПО ТЕКСТУ
-   ========================================== */
-
-.pack3-toast-container {
-    position: absolute;
-
-    top: 8px;
-    left: 50%;
-    right: auto;
-
-    transform: translateX(-50%);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    gap: 4px;
-
-    width: max-content !important;
-    height: auto !important;
-
-    max-width: min(85%, 360px) !important;
-    max-height: none !important;
-
-    overflow: visible !important;
-
-    z-index: 30;
-    pointer-events: none;
-}
-
-/* Бокс уведомления подстраивается под текст */
-.pack3-toast {
-    display: inline-flex !important;
-
-    width: fit-content !important;
-    min-width: 0 !important;
-    height: auto !important;
-
-    max-width: min(85vw, 360px) !important;
-
-    padding: 5px 9px !important;
-
-    font-size: clamp(9px, 1.1vw, 12px) !important;
-    line-height: 1.2 !important;
-
-    text-align: center;
-
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: normal !important;
-
-    overflow: visible !important;
-    text-overflow: clip !important;
-
-    box-sizing: border-box;
-}
-
-/* ==========================================
-   МОБИЛЬНАЯ ВЕРСИЯ
-   ========================================== */
-
-@media (max-width: 640px) {
-
-    /* Предметы внизу справа */
-    .pack2-inventory {
-        top: auto !important;
-        left: auto !important;
-
-        right: 5px !important;
-        bottom: 5px !important;
-
-        width: max-content !important;
-        max-width: none !important;
-
-        flex-direction: column !important;
-        gap: 3px !important;
-
-        padding: 3px !important;
-    }
-
-    .pack2-inventory .inv-btn {
-        width: 28px !important;
-        height: 28px !important;
-
-        border-radius: 6px;
-    }
-
-    .pack2-inventory .inv-icon {
-        font-size: 16px;
-    }
-
-    .pack2-inventory .inv-count {
-        width: 13px;
-        height: 13px;
-
-        font-size: 9px;
-
-        top: -3px;
-        right: -3px;
-    }
-
-    /* Уведомления — компактные, по содержимому */
-    .pack3-toast-container {
-        top: 5px;
-
-        width: max-content !important;
-        max-width: min(85%, 260px) !important;
-
-        height: auto !important;
-        max-height: none !important;
-
-        overflow: visible !important;
-    }
-
-    .pack3-toast {
-        width: fit-content !important;
-        max-width: min(85vw, 260px) !important;
-
-        min-width: 0 !important;
-        height: auto !important;
-
-        padding: 4px 7px !important;
-
-        font-size: 9px !important;
-        line-height: 1.2 !important;
-
-        white-space: normal !important;
-        overflow-wrap: anywhere !important;
-    }
-}
+.fullscreen-menu-btn { position: absolute; top: 12px; right: 12px; left: auto; bottom: auto; z-index: 50; width: 38px; height: 38px; font-size: 17px; }
+@media (max-width: 900px) and (orientation: landscape) { .fullscreen-menu-btn { top: max(5px, env(safe-area-inset-top)); right: max(5px, env(safe-area-inset-right)); width: clamp(27px, 5.5vmin, 36px); height: clamp(27px, 5.5vmin, 36px); font-size: clamp(11px, 2.2vmin, 15px); } }

@@ -182,6 +182,55 @@ const BACKGROUNDS = CONFIG.biomes;
 
 function Game() {
     const [gameState, setGameState] = useState('menu');
+    // Mobile entry gate: keep menus/game hidden until landscape + fullscreen.
+    const [mobileGate, setMobileGate] = useState(() => {
+        const mobile = window.matchMedia('(pointer: coarse)').matches || Math.min(window.innerWidth, window.innerHeight) <= 900;
+        const landscape = window.innerWidth > window.innerHeight;
+        const fullscreen = !!document.fullscreenElement;
+        return { mobile, landscape, fullscreen, notice: '' };
+    });
+    useEffect(() => {
+        const updateGate = () => setMobileGate(prev => ({
+            ...prev,
+            mobile: window.matchMedia('(pointer: coarse)').matches || Math.min(window.innerWidth, window.innerHeight) <= 900,
+            landscape: window.innerWidth > window.innerHeight,
+            fullscreen: !!document.fullscreenElement
+        }));
+        window.addEventListener('resize', updateGate);
+        window.addEventListener('orientationchange', updateGate);
+        document.addEventListener('fullscreenchange', updateGate);
+        return () => {
+            window.removeEventListener('resize', updateGate);
+            window.removeEventListener('orientationchange', updateGate);
+            document.removeEventListener('fullscreenchange', updateGate);
+        };
+    }, []);
+    const enterMobileFullscreen = async () => {
+        try {
+            const target = document.documentElement;
+            if (!document.fullscreenElement && target.requestFullscreen) await target.requestFullscreen();
+            try { await screen.orientation?.lock?.('landscape'); } catch (orientationError) { /* Some mobile browsers do not support orientation lock. */ }
+            setMobileGate(prev => ({ ...prev, notice: '' }));
+        } catch (error) {
+            setMobileGate(prev => ({ ...prev, notice: 'Нажмите полноэкранный режим в меню браузера, затем вернитесь в игру.' }));
+        }
+    };
+    const mobileGateRequired = mobileGate.mobile && (!mobileGate.landscape || !mobileGate.fullscreen);
+    if (mobileGateRequired) return React.createElement('div', { className: 'mobile-entry-gate', role: 'dialog', 'aria-modal': 'true' },
+        React.createElement('div', { className: 'mobile-entry-card' },
+            React.createElement('div', { className: 'mobile-entry-logo' }, 'LACOSTE RUNNER'),
+            React.createElement('div', { className: 'mobile-entry-icon' }, mobileGate.landscape ? '⛶' : '📱'),
+            React.createElement('h1', null, 'Подготовь экран'),
+            React.createElement('p', null, 'Для комфортной игры поверни телефон горизонтально и включи полноэкранный режим.'),
+            React.createElement('div', { className: 'mobile-entry-steps' },
+                React.createElement('div', { className: mobileGate.landscape ? 'mobile-entry-step done' : 'mobile-entry-step' }, '1', ' Переверни телефон в альбомную ориентацию'),
+                React.createElement('div', { className: mobileGate.fullscreen ? 'mobile-entry-step done' : 'mobile-entry-step' }, '2', ' Нажми кнопку ниже для полноэкранного режима')
+            ),
+            React.createElement('button', { className: 'mobile-entry-button', type: 'button', onClick: enterMobileFullscreen }, 'ВКЛЮЧИТЬ ИГРУ НА ВЕСЬ ЭКРАН'),
+            mobileGate.notice ? React.createElement('p', { className: 'mobile-entry-notice' }, mobileGate.notice) : null,
+            React.createElement('p', { className: 'mobile-entry-hint' }, 'Меню и игра появятся после выполнения обоих шагов.')
+        )
+    );
     useEffect(() => { window.__LACOSTE_GAME_STATE = gameState; }, [gameState]);
     const [timeOfDay, setTimeOfDay] = useState(() => ['day', 'night'].includes(safeStorageGet('lacosteTimeOfDay')) ? safeStorageGet('lacosteTimeOfDay') : 'day');
     const [background, setBackground] = useState(() => { const saved = safeStorageGet('lacosteBackground'); return (saved && BACKGROUNDS[saved]) ? saved : Object.keys(BACKGROUNDS)[0]; });
@@ -1216,8 +1265,11 @@ function Game() {
         gameState === 'playing' ? React.createElement(React.Fragment, null,
             React.createElement('button', { id: 'btn-menu', className: 'game-btn', type: 'button', title: 'Menu', 'aria-label': 'Menu', onClick: () => setGameState('menu') }, '⌂'),
             React.createElement('button', { id: 'btn-restart', className: 'game-btn', type: 'button', title: 'Restart run', 'aria-label': 'Restart run', onClick: resetGame }, '↻'),
-            React.createElement('button', { id: 'btn-pause', className: 'game-btn', type: 'button', title: 'Pause', 'aria-label': 'Pause', onClick: () => setGameState('paused') }, '❚❚')
+            React.createElement('button', { id: 'btn-pause', className: 'game-btn', type: 'button', title: 'Pause', 'aria-label': 'Pause', onClick: () => setGameState('paused') }, '❚❚'),
+            React.createElement('button', { id: 'btn-fullscreen', className: 'game-btn', type: 'button', title: 'Fullscreen', 'aria-label': 'Fullscreen', onClick: async () => { try { if (!document.fullscreenElement) await document.getElementById('game-container')?.requestFullscreen?.(); else await document.exitFullscreen?.(); } catch (e) { console.warn('Fullscreen unavailable', e); } } }, '⛶')
         ) : null,
+
+        gameState === 'menu' ? React.createElement('button', { id: 'btn-fullscreen-menu', className: 'game-btn fullscreen-menu-btn', type: 'button', title: 'Fullscreen', 'aria-label': 'Fullscreen', onClick: async () => { try { if (!document.fullscreenElement) await document.getElementById('game-container')?.requestFullscreen?.(); else await document.exitFullscreen?.(); } catch (e) { console.warn('Fullscreen unavailable', e); } } }, '⛶') : null,
 
         gameState === 'menu' ? (
             window.MenuShell
