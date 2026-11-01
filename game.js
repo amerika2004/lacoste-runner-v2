@@ -569,12 +569,16 @@ function Game() {
         explosionImg.current.src = 'source/explosion.png';
     }, []);
 
-    const calculateJumpMultiplier = (playerHeight, gameSpeed, penalty = 1.0) => {
+    // Jump strength is progression-based, not tied to the temporary speed penalty.
+    // A hit may slow the runner, but must not permanently weaken its jump.
+    const calculateJumpMultiplier = (playerHeight, gameSpeed, _penalty = 1.0) => {
         const char = CHARACTERS[character] || CHARACTERS[Object.keys(CHARACTERS)[0]];
-        const sizeFactor = Math.sqrt(playerHeight / char.baseHeight);
-        const speedFactor = 1 + (gameSpeed - 1) * 0.10;
+        const sizeFactor = Math.sqrt(Math.max(0.25, playerHeight / char.baseHeight));
+        // Gentle, capped progression: distance can improve jump strength slightly,
+        // but cannot make the player launch uncontrollably or reverse the curve.
+        const progression = 1 + Math.min(0.20, Math.max(0, gameSpeed - 1) * 0.08);
         const statJump = getStat(character, 'jump');
-        return Math.max(1.0, sizeFactor * speedFactor * penalty * statJump);
+        return Math.max(0.85, Math.min(1.45, sizeFactor * progression * statJump));
     };
 
     const toggleFullscreen = () => {
@@ -907,7 +911,28 @@ function Game() {
 
         if (window.Pack2State && window.Pack2State.activePowerups && window.Pack2State.activePowerups.magnet && window.Pack2State.activePowerups.magnet > Date.now()) { foodsRef.current.forEach(f => { const dx = (p.x + p.width/2) - (f.x + f.width/2); const dy = (p.y + p.height/2) - (f.y + f.height/2); const dist = Math.hypot(dx, dy); if (dist < 300) { f.x += dx * 0.1; f.y += dy * 0.1; } }); }
 
-        if (p.isJumping) { p.velocityY += GRAVITY; if (p.isHoldingJump) p.velocityY -= HOLD_THRUST * p.jumpMult; p.y += p.velocityY; p.tilt = p.velocityY * 0.025; p.tilt = Math.max(-0.35, Math.min(0.35, p.tilt)); if (p.y <= 0) { p.y = 0; if (p.velocityY < 0) p.velocityY = 0; } if (p.y >= gy - p.height) { p.y = gy - p.height; p.velocityY = 0; p.isJumping = false; p.hasDoubleJumped = false; p.tilt = 0; window.GameEvents.emit('land', { x: p.x + p.width / 2, y: p.y + p.height }); } }
+        if (p.isJumping) {
+            // Hold-to-jump reduces gravity only while the player is ascending.
+            // Do not add upward thrust every frame: that made held jumps hit
+            // the ceiling and made jump height feel inconsistent.
+            const rising = p.velocityY < 0;
+            const holdGravityScale = (p.isHoldingJump && rising)
+                ? Math.max(0.45, 1 - Math.max(0, Math.min(0.55, HOLD_THRUST)))
+                : 1;
+            p.velocityY += GRAVITY * holdGravityScale;
+            p.y += p.velocityY;
+            p.tilt = p.velocityY * 0.025;
+            p.tilt = Math.max(-0.35, Math.min(0.35, p.tilt));
+            if (p.y <= 0) { p.y = 0; if (p.velocityY < 0) p.velocityY = 0; }
+            if (p.y >= gy - p.height) {
+                p.y = gy - p.height;
+                p.velocityY = 0;
+                p.isJumping = false;
+                p.hasDoubleJumped = false;
+                p.tilt = 0;
+                window.GameEvents.emit('land', { x: p.x + p.width / 2, y: p.y + p.height });
+            }
+        }
         else if (!isTrippingRef.current) { p.bob = Math.sin(Date.now() / 80) * 2.5; p.tilt = 0; }
 
         if (!p.isJumping && !isTrippingRef.current) { const now = Date.now(); const frameDelay = Math.max(30, 100 - (currentSpeed * 5)); if (now - lastFrameTimeRef.current > frameDelay) { currentFrameRef.current = (currentFrameRef.current + 1) % char.frameCount; lastFrameTimeRef.current = now; const frames = walkFramesRef.current; const idx = frames.length > 0 ? currentFrameRef.current % frames.length : 0; const trailImg = frames[idx]; if (trailImg && !isEatingRef.current) RenderEngine.pushTrail(p.x, p.y, p.width, p.height, trailImg); } }
