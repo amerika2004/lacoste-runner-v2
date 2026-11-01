@@ -1002,3 +1002,104 @@ canvas { display: block; width: 100%; height: 100%; object-fit: contain; touch-a
     .pack2-inventory .inv-icon { font-size: 19px; }
     .pack2-inventory .inv-count { width: 16px; height: 16px; font-size: 11px; }
 }
+
+/* === HUD layout repair: keep the playfield readable on desktop and mobile === */
+#game-container { position: relative; overflow: hidden; }
+.hud-container {
+    top: 12px; right: 12px; left: auto;
+    align-items: flex-end; gap: 6px;
+    max-width: min(34vw, 300px);
+    transform-origin: top right;
+}
+.hud-top-row {
+    justify-content: flex-end; flex-wrap: wrap; gap: 5px 9px; padding: 6px 9px;
+    max-width: 100%; font-size: 13px;
+}
+.hud-main-stats { align-items: flex-end; text-align: right; }
+.hud-score { font-size: clamp(24px, 3.5vw, 36px); }
+.hud-highscore { font-size: 12px; }
+.hud-speed { font-size: 15px; margin-top: 2px; }
+.hud-vitals { align-items: flex-end; margin-top: 2px; gap: 2px; }
+.hud-health { font-size: 19px; }
+.hud-food {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px; border-radius: 8px;
+    background: rgba(0,0,0,.48); border: 1px solid rgba(255,255,255,.12);
+    color: #fff; font-size: 14px; line-height: 1.2;
+}
+.combo-indicator {
+    top: 145px; bottom: auto; left: auto; right: 12px;
+    transform: none; font-size: clamp(16px, 2.2vmin, 24px);
+    max-width: 24%; overflow-wrap: anywhere; text-align: right;
+}
+@keyframes comboSlideIn { 0% { transform: translateX(-18px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+.pack2-inventory {
+    left: 50%; right: auto; bottom: 8px; transform: translateX(-50%);
+    gap: 4px; max-width: 48%; flex-wrap: nowrap; justify-content: center;
+    padding: 4px 6px; border-radius: 12px; background: rgba(5,8,20,.42);
+    backdrop-filter: blur(4px);
+}
+.pack2-inventory .inv-btn { width: 38px; height: 38px; }
+.pack2-inventory .inv-icon { font-size: 20px; }
+.pack3-toast-container {
+    top: 12px; left: 50%; right: auto; transform: translateX(-50%);
+    width: min(48%, 380px); max-height: 16%; overflow: hidden;
+    gap: 4px; z-index: 30;
+}
+.pack3-toast {
+    max-width: 100%; padding: 6px 10px; font-size: clamp(10px, 1.05vw, 12px);
+    letter-spacing: .4px; line-height: 1.25; text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Mobile game HUD: compact controls and avoid covering the center lane. */
+@media (max-width: 640px) {
+    .hud-container { top: 6px; right: 6px; left: auto; max-width: 44%; gap: 3px; transform-origin: top right; }
+    .hud-top-row { padding: 4px 6px; gap: 3px 6px; font-size: 10px; }
+    .hud-score { font-size: clamp(19px, 5vw, 28px); }
+    .hud-highscore { font-size: 9px; }
+    .hud-speed { font-size: 11px; }
+    .hud-health { font-size: 14px; letter-spacing: 1px; }
+    .hud-food { font-size: 11px; padding: 2px 5px; }
+    .pack2-inventory { left: 50%; right: auto; bottom: 5px; transform: translateX(-50%); max-width: 58%; gap: 2px; }
+    .pack2-inventory .inv-btn { width: 30px; height: 30px; border-radius: 7px; }
+    .pack2-inventory .inv-icon { font-size: 18px; }
+    .pack2-inventory .inv-count { width: 14px; height: 14px; font-size: 9px; top: -3px; right: -3px; }
+    .combo-indicator { top: 92px; right: 6px; left: auto; bottom: auto; max-width: 25%; font-size: 13px; text-align: right; }
+    .pack3-toast-container { top: 6px; width: min(42%, 250px); max-height: 13%; }
+    .pack3-toast { padding: 4px 6px; font-size: 9px; border-left-width: 2px; }
+    .pack1-ability-controls { top: 55px; left: 6px; max-width: 38%; gap: 4px; }
+    .game-btn { bottom: 6px; width: 32px; height: 32px; font-size: 13px; }
+    #btn-pause { right: 6px; }
+    #btn-fullscreen { right: 44px; }
+    #btn-restart { right: 82px; font-size: 19px; }
+}
+
+/* Menu category labels must remain visible on touch layouts. */
+@media (max-width: 640px) {
+    .ms-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+    .ms-nav-btn {
+        min-width: 0; width: 100%; flex: initial;
+        white-space: normal; overflow-wrap: anywhere;
+        text-overflow: clip; line-height: 1.15;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center; min-height: 32px;
+    }
+}
+
+/* Minor feedback: compact side rail, never compete with the center notification lane. */
+.pack4-minor-toast-rail {
+    position: absolute; right: 12px; top: 205px; width: min(22%, 220px);
+    display: flex; flex-direction: column; gap: 3px; z-index: 24;
+    pointer-events: none; opacity: .82;
+}
+.pack4-minor-toast {
+    padding: 3px 7px; border-radius: 7px; background: rgba(5,10,20,.48);
+    border: 1px solid rgba(255,255,255,.08); color: #cbd5e1;
+    font-size: 10px; line-height: 1.15; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+    .pack4-minor-toast-rail { right: 5px; top: 150px; width: min(28%, 130px); gap: 2px; }
+    .pack4-minor-toast { padding: 2px 4px; font-size: 8px; }
+}
