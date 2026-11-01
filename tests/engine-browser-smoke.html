@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Lacoste Engine browser smoke</title></head>
+<body>
+<pre id="result">RUNNING</pre>
+<script src="../engine/core.js"></script>
+<script>
+(async function () {
+  const out = document.getElementById('result');
+  try {
+    const engine = window.LacosteEngine;
+    const order = [];
+    let updates = 0;
+    engine.registerPlugin({ id: 'browser.alpha', version: '1.0.0', minEngineVersion: '2.0.0', setup() { order.push('alpha'); return {}; } });
+    engine.registerPlugin({ id: 'browser.beta', version: '1.0.0', minEngineVersion: '2.0.0', dependencies: ['browser.alpha'], setup(api) { order.push('beta'); api.registerSystem({ id: 'smoke', update() { updates++; } }); return {}; } });
+    await engine.plugins.installAll();
+    await engine.plugins.startAll();
+    engine.setGameState('playing');
+    engine.step(34, {});
+    if (order.join(',') !== 'alpha,beta' || updates !== 2) throw new Error('plugin lifecycle/update assertion failed');
+    engine.state.set('smoke.ok', true);
+    out.textContent = 'PASS — browser plugin lifecycle, dependency ordering, state store, fixed-step updates';
+    out.dataset.status = 'pass';
+  } catch (error) {
+    out.textContent = 'FAIL — ' + (error && error.stack ? error.stack : error);
+    out.dataset.status = 'fail';
+  }
+})();
+</script>
+</body>
+</html>

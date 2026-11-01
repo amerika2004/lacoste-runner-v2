@@ -1,0 +1,13 @@
+{
+  "engine": "LacosteEngine",
+  "engineVersion": "2.0.0",
+  "scripts": [
+    "plugins/legacy-pack1.plugin.js",
+    "plugins/legacy-pack2.plugin.js",
+    "plugins/legacy-pack3.plugin.js",
+    "plugins/legacy-pack4.plugin.js",
+    "plugins/native-player-core.plugin.js",
+    "plugins/native-world-core.plugin.js",
+    "plugins/base-game.plugin.js"
+  ]
+}
