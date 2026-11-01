@@ -5,7 +5,7 @@
     'use strict';
 
     window.GAME_CONFIG = {
-        physics: { gravity: 0.75, jumpForce: -9.5, holdThrust: 0.45, groundY: 530, baseSpeed: 4.0, speedMultiplier: 0.8 },
+        physics: { gravity: 0.68, jumpForce: -11.5, holdThrust: 0.55, groundY: 530, baseSpeed: 4.0, speedMultiplier: 0.8 },
 
         defaultSettings: {
             sfxVolume: 0.7, ambientVolume: 0.25, masterVolume: 1.0, soundEnabled: true, graphics: 'high',
