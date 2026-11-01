@@ -216,7 +216,7 @@ function Game() {
         }
     };
     const mobileGateRequired = mobileGate.mobile && (!mobileGate.landscape || !mobileGate.fullscreen);
-    if (mobileGateRequired) return React.createElement('div', { className: 'mobile-entry-gate', role: 'dialog', 'aria-modal': 'true' },
+    const mobileGateElement = React.createElement('div', { className: 'mobile-entry-gate', role: 'dialog', 'aria-modal': 'true' },
         React.createElement('div', { className: 'mobile-entry-card' },
             React.createElement('div', { className: 'mobile-entry-logo' }, 'LACOSTE RUNNER'),
             React.createElement('div', { className: 'mobile-entry-icon' }, mobileGate.landscape ? '⛶' : '📱'),
@@ -1240,7 +1240,7 @@ function Game() {
 
     menuTabs.push({ id: 'settings', icon: '⚙️', label: 'Settings', title: 'Settings', render: () => renderSettingsContent() });
 
-    return React.createElement('div', { id: 'game-container' },
+    return mobileGateRequired ? mobileGateElement : React.createElement('div', { id: 'game-container' },
 
         (gameState === 'playing' || gameState === 'paused') ? React.createElement('div', { className: 'hud-container', style: { transform: `scale(${settings.hudScale})`, opacity: settings.hudOpacity } },
             React.createElement('div', { className: 'hud-top-row' },
