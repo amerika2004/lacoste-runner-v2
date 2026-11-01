@@ -372,19 +372,20 @@ window.PackUIs = window.PackUIs || [];
         const playerCenterX = player ? player.x + player.w / 2 : 182;
         const horizontalOffset = Math.max(0, Number(cfg.horizontalOffset) || 110);
 
-        // Повторяем реальную физику обычного прыжка с удержанием кнопки:
-        // velocityY += gravity; velocityY -= holdThrust * jumpMult; y += velocityY.
-        // Так корабль располагается у верхней точки достижимого прыжка, а не над головой стоящего игрока.
+        // Синхронизируем высоту НЛО с реальной физикой прыжка игрока.
+        // В игре удержание прыжка уменьшает гравитацию только на подъёме;
+        // дополнительного постоянного ускорения вверх нет.
         const gravity = Math.max(0.05, Number(physics.gravity) || 0.75);
         const jumpForce = Math.max(0.1, Math.abs(Number(physics.jumpForce) || 10.5));
         const holdThrust = Math.max(0, Number(physics.holdThrust) || 0.45);
-        const jumpMult = Math.max(1, Number(player?.jumpMult) || 1);
+        const holdGravityScale = Math.max(0.45, 1 - Math.min(0.55, holdThrust));
+        const jumpMult = Math.max(0.85, Number(player?.jumpMult) || 1);
         let velocityY = -jumpForce * jumpMult;
         let displacement = 0;
         let maxRise = 0;
         for (let frame = 0; frame < 600; frame++) {
-            velocityY += gravity;
-            velocityY -= holdThrust * jumpMult;
+            const rising = velocityY < 0;
+            velocityY += gravity * (rising ? holdGravityScale : 1);
             displacement += velocityY;
             maxRise = Math.max(maxRise, -displacement);
             if (velocityY >= 0) break;

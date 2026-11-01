@@ -233,7 +233,7 @@
                 id: 'panda', name: 'Panda', emoji: '🐼', folder: 'source/characters/panda',
                 frameCount: 20, baseWidth: 160, baseHeight: 120,
                 foodEmojis: ['🎋'], eatEmoji: '🎋', eatFolder: 'source/characters/panda/eating', eatFrameCount: 8, eatDuration: 4.0,
-                stats: { speed: 0.9, jump: 1.15, luck: 1.2 },
+                stats: { speed: 0.9, jump: 1.0, luck: 1.2 },
                 skins: [
                     { id: 'panda_default', name: 'Classic',      tier: 'bronze', price: 0,     unlocked: true  },
                     { id: 'panda_silver',  name: 'Silver Panda', tier: 'silver', price: 1500,  unlocked: false },
