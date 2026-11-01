@@ -494,6 +494,10 @@
             return () => this._uiComponents.delete(id);
         }
         getUIComponents() { return Array.from(this._uiComponents.values()); }
+        // Public event facade used by the gameplay loop and external modules.
+        // Keep this alias so callers can emit through LacosteEngine directly.
+        emit(event, payload) { return this.events.emit(event, payload); }
+        on(event, callback, options) { return this.events.on(event, callback, options); }
         get config() { return global.GAME_CONFIG || {}; }
         registerPlugin(definition) { return this.plugins.register(definition); }
         async boot(manifestUrl = 'plugins/manifest.json') {
