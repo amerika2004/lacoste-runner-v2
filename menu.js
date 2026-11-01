@@ -351,7 +351,10 @@
                 .ms-tabs { padding: 2px 3px 0; gap: 2px; }
                 .ms-tab { padding: 4px 7px; font-size: 9px; border-radius: 5px 5px 0 0; gap: 3px; }
                 .ms-tab-icon { font-size: 10px; }
-                .ms-tab-label { display: none; }  /* на компакте — только иконки */
+                .ms-tab-label { display: inline !important; } /* mobile: keep category labels visible */
+                .ms-tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; align-items: stretch; }
+                .ms-tab { flex: 0 0 auto; min-width: max-content; padding: 4px 6px; font-size: 9px; gap: 3px; }
+                .ms-tab-label { white-space: nowrap; line-height: 1.1; }
 
                 .ms-tab-panel { padding: 4px 6px; }
                 .ms-section-title { font-size: 9px; margin-bottom: 3px; padding-bottom: 1px; letter-spacing: 0.5px; margin-top: 4px !important; }
