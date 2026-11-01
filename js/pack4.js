@@ -1212,11 +1212,17 @@ window.PackUIs = window.PackUIs || [];
     // ─── TOAST ───
     function Pack4ToastSystem() {
         const [toasts, setToasts] = React.useState([]);
+        const [minorToasts, setMinorToasts] = React.useState([]);
         React.useEffect(() => {
             const listener = (data) => {
                 const id = Date.now() + Math.random();
-                setToasts(prev => [...prev, { id, ...data }]);
-                setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
+                const text = String(data?.text || '');
+                // Frequent low-priority feedback goes to a discreet side rail.
+                const minor = /food bonus|\+\s*\d+\s*HP|\+HP|food collected/i.test(text);
+                const item = { id, ...data };
+                const setter = minor ? setMinorToasts : setToasts;
+                setter(prev => [...prev, item].slice(minor ? -3 : -2));
+                setTimeout(() => setter(prev => prev.filter(t => t.id !== id)), minor ? 2200 : 3600);
             };
             window.GameEvents.on('pack4_toast', listener);
             return () => {
@@ -1225,10 +1231,14 @@ window.PackUIs = window.PackUIs || [];
                 }
             };
         }, []);
-        return React.createElement('div', {
-            className: 'pack3-toast-container', // сохраняем класс для совместимости CSS
-            style: { pointerEvents: 'none' },
-        }, toasts.map(t => React.createElement('div', { key: t.id, className: `pack3-toast ${t.type}` }, t.text)));
+        return React.createElement(React.Fragment, null,
+            React.createElement('div', {
+                className: 'pack3-toast-container', // сохраняем класс для совместимости CSS
+                style: { pointerEvents: 'none' },
+            }, toasts.map(t => React.createElement('div', { key: t.id, className: `pack3-toast ${t.type}` }, t.text))),
+            React.createElement('div', { className: 'pack4-minor-toast-rail', 'aria-live': 'polite' },
+                minorToasts.map(t => React.createElement('div', { key: t.id, className: 'pack4-minor-toast' }, t.text)))
+        );
     }
 
     if (window.PackUIs) window.PackUIs.push(Pack4ToastSystem);
